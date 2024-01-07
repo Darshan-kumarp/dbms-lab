@@ -67,51 +67,41 @@ QUERIES............................
 
 1.
 
-SELECT MOV_TITLE FROM MOVIES
-WHERE DIR_ID = (SELECT DIR_ID
-FROM DIRECTOR
-WHERE DIR_NAME='HITCHCOCK');
-
+SELECT M.Mov_Title
+FROM MOVIES M
+NATURAL JOIN DIRECTOR D
+WHERE D.Dir_Name = 'Hitchcock';
 2.
 
-SELECT MOV_TITLE
-FROM MOVIES M,MOVIE_CAST MC
-WHERE M.MOV_ID=MC.MOV_ID AND ACT_ID IN (SELECT ACT_ID
-FROM MOVIE_CAST GROUP BY ACT_ID
-HAVING COUNT(ACT_ID)>=1)
-GROUP BY MOV_TITLE
-HAVING COUNT(*)>1;
-
-(Venkat optimized query)
-SELECT MOV_ID FROM MOVIES M WHERE M.MOV_ID IN (SELECT M2.MOV_ID FROM MOVIE_CAST M2 GROUP BY M2.MOV_ID HAVING COUNT(M2.MOV_ID)>1);  
+select m.mov_title
+    from movies m
+    natural join movie_cast mc
+     where act_id in (select act_id
+     from movie_cast
+     group by act_id
+     having count(act_id)>1)
+     group by mov_title
+     having count(*) > 1;
 
 3.
-(SELECT A.ACT_NAME
- FROM ACTOR A JOIN MOVIE_CAST M ON A.ACT_ID=M.ACT_ID
- JOIN MOVIES M1 ON M.MOV_ID=M1.MOV_ID
- WHERE M1.MOV_YEAR<2000 )
- INTERSECT
- (SELECT A.ACT_NAME
- FROM ACTOR A JOIN MOVIE_CAST M ON A.ACT_ID=M.ACT_ID
- JOIN MOVIES M1 ON M.MOV_ID=M1.MOV_ID
- WHERE M1.MOV_YEAR>2015 );
-
+select distinct act_name
+from (actor join movie_cast using(act_id)) join movies using(mov_id)
+where mov_year not between 2000 and 2015;
 
 4.
 
-SELECT MOV_TITLE,MAX(REV_STARS)
-FROM MOVIES
-INNER JOIN RATING USING (MOV_ID)
-GROUP BY MOV_TITLE
-HAVING MAX(REV_STARS)>0
-ORDER BY MOV_TITLE;
+select mov_title , max(rev_stars)
+from movies natural join rating
+group by mov_title
+order by mov_title;
 
 5.
 
-UPDATE RATING
-SET REV_STARS=5
-WHERE MOV_ID IN (SELECT MOV_ID FROM MOVIES
-WHERE DIR_ID IN (SELECT DIR_ID
-FROM DIRECTOR
-WHERE DIR_NAME='STEVEN SPIELBERG'));
-
+update rating
+set rev_stars = 5
+where mov_id in ( select mov_id 
+                  from director natural join movies
+                  where dir_name = 'STEVEN SPIELBERG');
+order by mov_id;
+select * from rating
+order by mov_id;
