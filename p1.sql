@@ -79,10 +79,14 @@ INSERT	INTO	BOOK_LENDING	VALUES(3333,22,1, '2017-07-10','2017-07-15');
 sql queries........................................................................................
 
 1]
-SELECT LB. BRANCH_NAME, B. BOOK_ID, TITLE, PUBLISHER_NAME, AUTHOR_NAME, NO_OF_COPIES FROM BOOK B, BOOK_AUTHORS BA, BOOK_COPIES BC, LIBRARY_BRANCH LB WHERE B. BOOK_ID = BA. BOOK_ID AND BA. BOOK_ID = BC. BOOK_ID AND BC. BRANCH_ID = LB. BRANCH_ID GROUP BY LB. BRANCH_NAME, B. BOOK_ID, TITLE, PUBLISHER_NAME, AUTHOR_NAME, NO_OF_COPIES;
+select b.book_id, b.title, b.publisher_name, ba.author_name, bc.branch_id, bc.no_of_copies
+from book b
+natural join book_authors ba
+natural join book_copies bc;
+
 
 2]
-SELECT CARD_NO FROM BOOK_LENDING WHERE DATE_OUT BETWEEN '01-JAN-2017' AND '30-JUN-2017'GROUP BY CARD_NO HAVING COUNT(*) > 3;
+SELECT CARD_NO FROM BOOK_LENDING WHERE DATE_OUT BETWEEN '2017-01-01' AND '2017'GROUP BY CARD_NO HAVING COUNT(*) > 3;
 
 3]
 DELETE FROM BOOK WHERE BOOK_ID = '3333';
@@ -91,6 +95,11 @@ DELETE FROM BOOK WHERE BOOK_ID = '3333';
 CREATE VIEW V_PUBLICATION AS SELECT BOOK_ID, TITLE, PUBLISHER_NAME,PUB_YEAR FROM BOOK ORDER BY PUB_YEAR;
 
 5]
-CREATE VIEW BOOKS_AVAILABLE AS SELECT B. BOOK_ID, B. TITLE,C.NO_OF_COPIES FROM LIBRARY_BRANCH L, BOOK B, BOOK_COPIES C WHERE B. BOOK_ID = C. BOOK_ID AND L. BRANCH_ID=C.BRANCH_ID;
+create view available_books as
+    select b.book_id, b.title, l.branch_id, bc.no_of_copies
+    from book b
+    natural join book_copies bc
+    natural join library_branch l;
 
+select * from available_books;
 
